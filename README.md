@@ -1,5 +1,7 @@
 # SafeZone - Women Safety Application
 
+> 🌐 **Live Website:** [https://safezone-app.onrender.com](https://safezone-app.onrender.com)
+
 SafeZone is a web-based safety application designed to enhance personal security by providing real-time location tracking, crime hotspot visualization, and emergency assistance (SOS).
 
 Built with **Flask** (backend), **MongoDB / Local JSON DB** (database layer), and **Leaflet.js + CartoDB Dark Matter** (interactive mapping system), SafeZone provides a seamless, premium glassmorphism dark-themed portal for navigation safety.

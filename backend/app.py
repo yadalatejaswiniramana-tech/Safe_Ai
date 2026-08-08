@@ -26,79 +26,80 @@ def create_app():
     return app
 
 def seed_database():
-    db = get_db()
-    # Check if hotspots already exist
-    if db.hotspots.find_one():
-        print("Database already has crime hotspots seeded.")
-        return
+    try:
+        db = get_db()
+        # Check if hotspots already exist
+        if db.hotspots.find_one():
+            print("Database already has crime hotspots seeded.")
+            return
 
-    # Seed data
-    print("No crime hotspots found. Seeding database with initial hotspot data...")
-    seed_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database/sample_data.json'))
-    
-    hotspots_to_seed = []
-    if os.path.exists(seed_file):
-        try:
-            with open(seed_file, 'r') as f:
-                data = json.load(f)
-                hotspots_to_seed = data.get("hotspots", [])
-            print(f"Loaded {len(hotspots_to_seed)} hotspots from database/sample_data.json")
-        except Exception as e:
-            print(f"Failed to read sample_data.json: {e}")
-    
-    # If file was missing or empty, use fallback data
-    if not hotspots_to_seed:
-        print("Using default fallback hotspot data for seeding...")
-        # Coordinates around a central location (e.g., Delhi, Bangalore, or a general downtown area)
-        # Let's use Delhi/Gurgaon coordinates as high-density examples
-        hotspots_to_seed = [
-            {
-                "name": "Central Metro Station Area",
-                "lat": 28.6139,
-                "lng": 77.2090,
-                "risk_level": "high",
-                "description": "High pocket-picking and low-lighting reported near gate 3."
-            },
-            {
-                "name": "Sector 4 Market Alleyways",
-                "lat": 28.6200,
-                "lng": 77.2200,
-                "risk_level": "medium",
-                "description": "Bag snatching incidents in dark alleys after 9 PM."
-            },
-            {
-                "name": "North Transit Hub Park",
-                "lat": 28.6050,
-                "lng": 77.1950,
-                "risk_level": "high",
-                "description": "Multiple reports of harassment in late evening hours."
-            },
-            {
-                "name": "West Cyber City Gate 2",
-                "lat": 28.5900,
-                "lng": 77.2100,
-                "risk_level": "low",
-                "description": "Minor theft reports, heavily guarded but isolated near boundary."
-            },
-            {
-                "name": "Eastern Overpass",
-                "lat": 28.6250,
-                "lng": 77.2000,
-                "risk_level": "medium",
-                "description": "Isolated walkway under bridge. Limited CCTV coverage."
-            }
-        ]
+        # Seed data
+        print("No crime hotspots found. Seeding database with initial hotspot data...")
+        seed_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database/sample_data.json'))
+        
+        hotspots_to_seed = []
+        if os.path.exists(seed_file):
+            try:
+                with open(seed_file, 'r') as f:
+                    data = json.load(f)
+                    hotspots_to_seed = data.get("hotspots", [])
+                print(f"Loaded {len(hotspots_to_seed)} hotspots from database/sample_data.json")
+            except Exception as e:
+                print(f"Failed to read sample_data.json: {e}")
+        
+        # If file was missing or empty, use fallback data
+        if not hotspots_to_seed:
+            print("Using default fallback hotspot data for seeding...")
+            hotspots_to_seed = [
+                {
+                    "name": "Central Metro Station Area",
+                    "lat": 28.6139,
+                    "lng": 77.2090,
+                    "risk_level": "high",
+                    "description": "High pocket-picking and low-lighting reported near gate 3."
+                },
+                {
+                    "name": "Sector 4 Market Alleyways",
+                    "lat": 28.6200,
+                    "lng": 77.2200,
+                    "risk_level": "medium",
+                    "description": "Bag snatching incidents in dark alleys after 9 PM."
+                },
+                {
+                    "name": "North Transit Hub Park",
+                    "lat": 28.6050,
+                    "lng": 77.1950,
+                    "risk_level": "high",
+                    "description": "Multiple reports of harassment in late evening hours."
+                },
+                {
+                    "name": "West Cyber City Gate 2",
+                    "lat": 28.5900,
+                    "lng": 77.2100,
+                    "risk_level": "low",
+                    "description": "Minor theft reports, heavily guarded but isolated near boundary."
+                },
+                {
+                    "name": "Eastern Overpass",
+                    "lat": 28.6250,
+                    "lng": 77.2000,
+                    "risk_level": "medium",
+                    "description": "Isolated walkway under bridge. Limited CCTV coverage."
+                }
+            ]
 
-    for hs in hotspots_to_seed:
-        HotspotModel.create_hotspot(
-            db=db,
-            name=hs.get("name"),
-            lat=hs.get("lat"),
-            lng=hs.get("lng"),
-            risk_level=hs.get("risk_level"),
-            description=hs.get("description", "")
-        )
-    print("Database seeding completed.")
+        for hs in hotspots_to_seed:
+            HotspotModel.create_hotspot(
+                db=db,
+                name=hs.get("name"),
+                lat=hs.get("lat"),
+                lng=hs.get("lng"),
+                risk_level=hs.get("risk_level"),
+                description=hs.get("description", "")
+            )
+        print("Database seeding completed.")
+    except Exception as e:
+        print(f"Non-fatal error during database seed: {e}")
 
 if __name__ == '__main__':
     app = create_app()

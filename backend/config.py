@@ -152,6 +152,6 @@ def get_db():
         client.admin.command('ping')
         print("Successfully connected to MongoDB.")
         return client[DB_NAME]
-    except (ConnectionFailure, ServerSelectionTimeoutError) as e:
-        print(f"MongoDB connection failed. Falling back to local file-based JSON DB: {LOCAL_DB_PATH}")
+    except Exception as e:
+        print(f"MongoDB connection failed: {e}. Falling back to local file-based JSON DB: {LOCAL_DB_PATH}")
         return JSONDatabaseFallback(LOCAL_DB_PATH)

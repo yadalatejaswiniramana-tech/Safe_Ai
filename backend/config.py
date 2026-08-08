@@ -21,7 +21,8 @@ class MockCollection:
         all_data[self.name] = data
         self.db._save_data(all_data)
 
-    def find_one(self, query):
+    def find_one(self, query=None):
+        query = query or {}
         data = self._load_data()
         for doc in data:
             if self._matches(doc, query):

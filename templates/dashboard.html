@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SafeZone Safety Application{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 2rem;
+        margin-top: 1rem;
+    }
+    
+    .status-widget {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.75rem;
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        border-radius: 16px;
+        margin-bottom: 2rem;
+    }
+    
+    .status-icon {
+        font-size: 3rem;
+        color: var(--safe);
+        filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.4));
+    }
+    
+    .status-text h3 {
+        font-size: 1.4rem;
+        margin-bottom: 0.2rem;
+        color: var(--text-main);
+    }
+    
+    .status-text p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+    
+    .dashboard-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+    }
+    
+    .action-card {
+        padding: 1.5rem;
+        text-align: center;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-glass);
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .action-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-4px);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    .action-card i {
+        font-size: 2.2rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .action-card.sos-action {
+        border-color: rgba(239, 68, 68, 0.2);
+        background: rgba(239, 68, 68, 0.02);
+    }
+    
+    .action-card.sos-action:hover {
+        border-color: var(--danger);
+        background: rgba(239, 68, 68, 0.05);
+    }
+    
+    .action-card.sos-action i {
+        color: var(--danger);
+        filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.3));
+    }
+    
+    .action-card.map-action i {
+        color: var(--cyan-accent);
+        filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.3));
+    }
+
+    .action-card.hotspots-action i {
+        color: var(--warning);
+        filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.3));
+    }
+    
+    .contact-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.9rem 1.25rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-glass);
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        transition: var(--transition-smooth);
+    }
+    
+    .contact-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+    
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    
+    .contact-name {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--text-main);
+    }
+    
+    .contact-phone {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+    
+    .contact-delete-btn {
+        background: none;
+        border: none;
+        color: #fca5a5;
+        cursor: pointer;
+        padding: 0.4rem;
+        border-radius: 6px;
+        transition: var(--transition-smooth);
+    }
+    
+    .contact-delete-btn:hover {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+    }
+    
+    .no-contacts {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--text-muted);
+        border: 2px dashed var(--border-glass);
+        border-radius: 12px;
+    }
+    
+    .no-contacts i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.5;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    @media (max-width: 900px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>User Safety Console</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Welcome back, {{ user.username }}. Control safety zones and dispatch alerts.</p>
+</div>
+
+<!-- Safety Status Widget -->
+<div class="status-widget" id="safety-status-bar">
+    <div class="status-icon">
+        <i class="fa-solid fa-shield-halved" id="status-shield-icon"></i>
+    </div>
+    <div class="status-text">
+        <h3 id="status-headline">Safety System Online</h3>
+        <p id="status-subtext">No location markers updated yet. Go to Live Map to sync coordinates.</p>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Left panel: Utilities -->
+    <div class="glass-card">
+        <h3 style="margin-bottom: 0.75rem;"><i class="fa-solid fa-sliders"></i> Action Hub</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Select an action to view real-time maps or setup crisis operations.</p>
+        
+        <div class="dashboard-actions">
+            <div class="action-card sos-action" onclick="window.location.href='/sos'">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <h4 style="font-size: 1.1rem;">Emergency SOS</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Send immediate alerts</p>
+            </div>
+            
+            <div class="action-card map-action" onclick="window.location.href='/map'">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <h4 style="font-size: 1.1rem;">Live Map</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Track & secure routes</p>
+            </div>
+
+            <div class="action-card hotspots-action" onclick="window.location.href='/hotspots'">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <h4 style="font-size: 1.1rem;">Risk Zones</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">View crime hotspot list</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2.5rem; border-top: 1px solid var(--border-glass); padding-top: 1.5rem;">
+            <h3><i class="fa-solid fa-location-crosshairs"></i> Last Known Location</h3>
+            <div style="background: rgba(0, 0, 0, 0.2); padding: 1.25rem; border-radius: 12px; margin-top: 1rem; border: 1px solid var(--border-glass);">
+                {% if user.current_location %}
+                    <p style="font-size: 0.95rem; margin-bottom: 0.4rem;"><strong>Latitude:</strong> <span id="last-lat">{{ user.current_location.lat }}</span></p>
+                    <p style="font-size: 0.95rem; margin-bottom: 0.4rem;"><strong>Longitude:</strong> <span id="last-lng">{{ user.current_location.lng }}</span></p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);"><strong>Synced On:</strong> <span id="last-time">{{ user.current_location.timestamp }}</span></p>
+                {% else %}
+                    <p style="color: var(--text-muted); font-size: 0.9rem;" id="no-location-msg">No coordinates recorded. Enable map permissions to stream updates.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right panel: Contacts -->
+    <div class="glass-card">
+        <h3 style="margin-bottom: 0.75rem;"><i class="fa-solid fa-address-book"></i> Crisis Contacts</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Add emergency links to share location coordinates automatically during SOS activations.</p>
+
+        <div id="contact-feedback" class="alert-container hide" style="margin-bottom: 1.25rem; padding: 0.6rem 1rem;">
+            <i class="fa-solid fa-circle-exclamation alert-icon"></i>
+            <span id="contact-feedback-msg"></span>
+        </div>
+
+        <form id="add-contact-form" style="margin-bottom: 2rem;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="contact-name">Contact Name</label>
+                    <input class="form-control" type="text" id="contact-name" placeholder="e.g. Mom" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="contact-phone">Mobile Phone</label>
+                    <input class="form-control" type="tel" id="contact-phone" placeholder="10-digit number" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 0.7rem; font-size: 0.95rem;"><i class="fa-solid fa-plus"></i> Add Emergency Contact</button>
+        </form>
+
+        <h4 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">Active Safety Ring</h4>
+        <div id="contacts-list-container">
+            <!-- Filled via JS -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Embedded script to handle emergency contact changes and local storage cache of location
+    document.addEventListener('DOMContentLoaded', () => {
+        // Parse current contacts injected by Flask
+        let contactsList = {{ user.emergency_contacts | tojson | safe }} || [];
+        
+        const container = document.getElementById('contacts-list-container');
+        const form = document.getElementById('add-contact-form');
+        const feedback = document.getElementById('contact-feedback');
+        const feedbackMsg = document.getElementById('contact-feedback-msg');
+
+        function showFeedback(msg, isSuccess=false) {
+            feedbackMsg.textContent = msg;
+            feedback.classList.remove('hide');
+            if (isSuccess) {
+                feedback.classList.add('success');
+                feedback.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+                feedback.style.background = 'rgba(16, 185, 129, 0.1)';
+                feedback.style.color = 'var(--safe)';
+            } else {
+                feedback.classList.remove('success');
+                feedback.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+                feedback.style.background = 'rgba(239, 68, 68, 0.1)';
+                feedback.style.color = 'var(--danger)';
+            }
+            setTimeout(() => feedback.classList.add('hide'), 4000);
+        }
+
+        function renderContacts() {
+            container.innerHTML = '';
+            if (contactsList.length === 0) {
+                container.innerHTML = `
+                    <div class="no-contacts">
+                        <i class="fa-solid fa-users-slash"></i>
+                        <p>No contacts registered.</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.2rem;">SOS alerts will notify the server log, but cannot send map coordinate SMS.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            contactsList.forEach((contact, idx) => {
+                const item = document.createElement('div');
+                item.className = 'contact-item';
+                item.innerHTML = `
+                    <div class="contact-info">
+                        <span class="contact-name">${escapeHTML(contact.name)}</span>
+                        <span class="contact-phone"><i class="fa-solid fa-phone-flip"></i> ${escapeHTML(contact.phone)}</span>
+                    </div>
+                    <button class="contact-delete-btn" data-index="${idx}" aria-label="Remove contact"><i class="fa-solid fa-trash-can"></i></button>
+                `;
+                container.appendChild(item);
+            });
+
+            // Bind delete events
+            document.querySelectorAll('.contact-delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = parseInt(btn.getAttribute('data-index'));
+                    deleteContact(idx);
+                });
+            });
+        }
+
+        async function syncContactsBackend() {
+            try {
+                const response = await fetch('/api/contacts/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ contacts: contactsList })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showFeedback("Safety Ring updated successfully!", true);
+                } else {
+                    showFeedback(data.error || "Failed to update emergency contact ring.");
+                }
+            } catch (err) {
+                showFeedback("Connection failed. Updates saved only locally in page context.");
+                console.error("Sync contacts error:", err);
+            }
+        }
+
+        function deleteContact(idx) {
+            contactsList.splice(idx, 1);
+            renderContacts();
+            syncContactsBackend();
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('contact-name').value.trim();
+            const phone = document.getElementById('contact-phone').value.trim();
+
+            if (!name || !phone) {
+                showFeedback("Please specify both name and mobile number.");
+                return;
+            }
+
+            if (!/^\d{10}$/.test(phone)) {
+                showFeedback("Please enter a valid 10-digit mobile number.");
+                return;
+            }
+
+            // Check duplicate
+            if (contactsList.some(c => c.phone === phone)) {
+                showFeedback("This phone number is already registered.");
+                return;
+            }
+
+            contactsList.push({ name, phone });
+            renderContacts();
+            form.reset();
+            syncContactsBackend();
+        });
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        // Initialize display
+        renderContacts();
+
+        // Check if there was last coordinates in localStorage from user sessions
+        const cachedLat = localStorage.getItem('safezone_last_lat');
+        const cachedLng = localStorage.getItem('safezone_last_lng');
+        const cachedStatus = localStorage.getItem('safezone_last_status');
+        const cachedMessage = localStorage.getItem('safezone_last_msg');
+
+        if (cachedLat && cachedLng) {
+            // Update UI safety status banner according to cache
+            const statusBar = document.getElementById('safety-status-bar');
+            const headline = document.getElementById('status-headline');
+            const subtext = document.getElementById('status-subtext');
+            const shieldIcon = document.getElementById('status-shield-icon');
+
+            headline.textContent = `Current Zone Risk Level: ${cachedStatus || 'Unknown'}`;
+            subtext.textContent = cachedMessage || `Last scanned position: (${cachedLat}, ${cachedLng})`;
+
+            // Modify coloring of status bar depending on level
+            statusBar.style.transition = 'var(--transition-smooth)';
+            if (cachedStatus === 'High Risk') {
+                statusBar.style.background = 'rgba(239, 68, 68, 0.08)';
+                statusBar.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+                shieldIcon.className = 'fa-solid fa-triangle-exclamation';
+                shieldIcon.style.color = 'var(--danger)';
+                shieldIcon.style.filter = 'drop-shadow(0 0 10px rgba(239, 68, 68, 0.4))';
+            } else if (cachedStatus === 'Moderate Risk') {
+                statusBar.style.background = 'rgba(245, 158, 11, 0.08)';
+                statusBar.style.borderColor = 'rgba(245, 158, 11, 0.25)';
+                shieldIcon.className = 'fa-solid fa-triangle-exclamation';
+                shieldIcon.style.color = 'var(--warning)';
+                shieldIcon.style.filter = 'drop-shadow(0 0 10px rgba(245, 158, 11, 0.4))';
+            } else if (cachedStatus === 'Low Risk') {
+                statusBar.style.background = 'rgba(6, 182, 212, 0.08)';
+                statusBar.style.borderColor = 'rgba(6, 182, 212, 0.25)';
+                shieldIcon.className = 'fa-solid fa-shield-halved';
+                shieldIcon.style.color = 'var(--cyan-accent)';
+                shieldIcon.style.filter = 'drop-shadow(0 0 10px rgba(6, 182, 212, 0.4))';
+            } else {
+                statusBar.style.background = 'rgba(16, 185, 129, 0.08)';
+                statusBar.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+                shieldIcon.className = 'fa-solid fa-shield-halved';
+                shieldIcon.style.color = 'var(--safe)';
+                shieldIcon.style.filter = 'drop-shadow(0 0 10px rgba(16, 185, 129, 0.4))';
+            }
+        }
+    });
+</script>
+{% endblock %}

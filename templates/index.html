@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}SafeZone - Safety First, Anywhere{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Your Safety Is Our <span class="accent-text">Priority</span></h1>
+        <p class="hero-subtitle">Navigate confidently with SafeZone. Real-time GPS location tracking, interactive crime hotspot warning zones, and instantaneous emergency alert system.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('main.register_view') }}" class="btn-primary btn-hero"><i class="fa-solid fa-user-plus"></i> Create Safety Profile</a>
+            <a href="{{ url_for('main.login_view') }}" class="btn-secondary btn-hero"><i class="fa-solid fa-right-to-bracket"></i> Login Access</a>
+        </div>
+    </div>
+    
+    <div class="hero-visual">
+        <div class="visual-globe">
+            <div class="radar-circle circle-1"></div>
+            <div class="radar-circle circle-2"></div>
+            <div class="radar-circle circle-3"></div>
+            <i class="fa-solid fa-shield-halved visual-shield"></i>
+        </div>
+    </div>
+</div>
+
+<section class="features-section">
+    <h2 class="section-title">Core Protection Features</h2>
+    
+    <div class="features-grid">
+        <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper red-glow">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <h3 class="feature-name">One-Tap SOS Alert</h3>
+            <p class="feature-desc">Send immediate location tracking alerts to all your preconfigured emergency contacts in one click, complete with live map routes.</p>
+        </div>
+
+        <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper orange-glow">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="feature-name">Crime Hotspot Warning</h3>
+            <p class="feature-desc">Interactive Leaflet maps visualising High, Medium, and Low-risk areas with instant sound alerts as you walk near marked locations.</p>
+        </div>
+
+        <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper cyan-glow">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <h3 class="feature-name">Dual-Auth PIN Lock</h3>
+            <p class="feature-desc">Access to map panels and emergency configurations requires a secondary 4-digit PIN, securing your private information.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

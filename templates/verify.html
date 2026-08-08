@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify PIN - SafeZone Safety Application{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/verify.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card glass-card">
+        <div class="auth-header">
+            <h2 class="auth-title">Security Keypad</h2>
+            <p class="auth-subtitle">Verify your 4-digit safety PIN to unlock secure dashboard utilities.</p>
+        </div>
+
+        <div id="error-alert" class="alert-container hide">
+            <i class="fa-solid fa-circle-exclamation alert-icon"></i>
+            <span id="error-message"></span>
+        </div>
+
+        <div id="success-alert" class="alert-container success hide">
+            <i class="fa-solid fa-circle-check alert-icon"></i>
+            <span>Verification successful! Access granted...</span>
+        </div>
+
+        <div class="pin-pad-container">
+            <!-- Passcode Dots representation -->
+            <div class="pin-display" id="pin-display-dots">
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+            </div>
+
+            <!-- Custom Security Keypad -->
+            <div class="keypad-grid">
+                <button type="button" class="keypad-btn number-btn" data-value="1">1</button>
+                <button type="button" class="keypad-btn number-btn" data-value="2">2</button>
+                <button type="button" class="keypad-btn number-btn" data-value="3">3</button>
+                
+                <button type="button" class="keypad-btn number-btn" data-value="4">4</button>
+                <button type="button" class="keypad-btn number-btn" data-value="5">5</button>
+                <button type="button" class="keypad-btn number-btn" data-value="6">6</button>
+                
+                <button type="button" class="keypad-btn number-btn" data-value="7">7</button>
+                <button type="button" class="keypad-btn number-btn" data-value="8">8</button>
+                <button type="button" class="keypad-btn number-btn" data-value="9">9</button>
+                
+                <button type="button" class="keypad-btn action" id="clear-btn"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" class="keypad-btn number-btn" data-value="0">0</button>
+                <button type="button" class="keypad-btn action" id="submit-pin-btn" disabled><i class="fa-solid fa-circle-check"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/verify.js') }}"></script>
+{% endblock %}

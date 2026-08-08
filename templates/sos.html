@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Emergency SOS - SafeZone Safety Application{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="sos-container">
+    <div class="sos-card glass-card">
+        <div class="sos-header">
+            <h2 class="sos-title"><i class="fa-solid fa-circle-exclamation text-danger"></i> Panic Command</h2>
+            <p class="sos-subtitle">Triggers live coordinates transfer to emergency contacts.</p>
+        </div>
+
+        <div class="sos-main-view">
+            <!-- Pulsing SOS Button wrapper -->
+            <div class="sos-button-wrapper" id="sos-trigger-area">
+                <button type="button" class="sos-main-btn" id="sos-btn">
+                    <span id="sos-btn-text">SOS</span>
+                </button>
+                <div class="ripple-ring r1"></div>
+                <div class="ripple-ring r2"></div>
+                <div class="ripple-ring r3"></div>
+            </div>
+
+            <!-- Countdown Timer Panel (Hidden by default) -->
+            <div class="countdown-panel hide" id="countdown-panel">
+                <div class="countdown-circle">
+                    <span id="timer-number">5</span>
+                </div>
+                <p class="countdown-warning">ALERT DISPATCHING IN PROGRESS...</p>
+                <button type="button" class="btn-secondary" id="cancel-sos-btn"><i class="fa-solid fa-xmark"></i> Click to Cancel Alert</button>
+            </div>
+
+            <!-- Alarm Switch Toggle -->
+            <div class="alarm-toggle-wrapper">
+                <label class="switch-container">
+                    <input type="checkbox" id="siren-toggle">
+                    <span class="switch-slider"></span>
+                </label>
+                <span class="alarm-label"><i class="fa-solid fa-volume-high"></i> Local Audio Siren Alarm</span>
+            </div>
+        </div>
+
+        <!-- Alert Log feeds -->
+        <div class="alerts-log-wrapper hide" id="alerts-log-wrapper">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Dispatch Reports</h3>
+            <div class="alerts-log-box" id="alerts-log-box">
+                <!-- Log steps will append here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/sos.js') }}"></script>
+{% endblock %}

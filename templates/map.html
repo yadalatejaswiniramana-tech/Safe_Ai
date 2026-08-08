@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Live Map Routing - SafeZone Safety Application{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="map-view-container">
+    <!-- Sidebar Controls Panel -->
+    <div class="map-sidebar glass-card">
+        <div class="sidebar-header">
+            <h3><i class="fa-solid fa-map-location-dot"></i> Navigation Panel</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Simulate real-time movements and compute safe paths.</p>
+        </div>
+
+        <!-- Proximity Safety Score Wheel -->
+        <div class="safety-score-widget">
+            <div class="safety-score-ring" id="safety-ring">
+                <span class="score-number" id="safety-score-val">100</span>
+                <span class="score-label">Safety Index</span>
+            </div>
+            <div class="safety-status-text">
+                <h4 id="safety-level-title">Safe Zone</h4>
+                <p id="safety-level-desc">No crime hotspots within 500 meters of your marker.</p>
+            </div>
+        </div>
+
+        <!-- Geolocation Coordinates -->
+        <div class="coords-box">
+            <h4><i class="fa-solid fa-location-crosshairs"></i> GPS Coordinates</h4>
+            <div class="coords-vals">
+                <div>
+                    <span>Lat:</span>
+                    <strong id="live-lat">Searching...</strong>
+                </div>
+                <div>
+                    <span>Lng:</span>
+                    <strong id="live-lng">Searching...</strong>
+                </div>
+            </div>
+            <button class="btn-secondary btn-small" id="recenter-btn" style="width: 100%; font-size: 0.85rem; padding: 0.5rem; margin-top: 0.75rem;"><i class="fa-solid fa-crosshairs"></i> Recenter Marker</button>
+        </div>
+
+        <!-- Safe Route Planner -->
+        <div class="routing-box">
+            <h4><i class="fa-solid fa-route"></i> Route Planner</h4>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">Simulate path routing from Paharganj towards India Gate avoiding high risk zones.</p>
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label class="form-label" style="font-size: 0.75rem;">Destination Target</label>
+                <select class="form-control" id="route-target-select" style="padding: 0.6rem; font-size: 0.85rem;">
+                    <option value="india_gate">India Gate (Safe Point)</option>
+                    <option value="connaught_place">Connaught Place (Safe Point)</option>
+                    <option value="karol_bagh">Karol Bagh Market (Moderate Risk)</option>
+                    <option value="gb_road">GB Road Zone (High Risk)</option>
+                </select>
+            </div>
+            <button class="btn-primary" id="calc-route-btn" style="width: 100%; padding: 0.6rem; font-size: 0.9rem;"><i class="fa-solid fa-compass"></i> Calculate Safe Route</button>
+        </div>
+
+        <!-- Location Simulator Controls -->
+        <div class="simulator-box">
+            <h4><i class="fa-solid fa-microchip"></i> GPS Movement Simulator</h4>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem;">Test danger warnings by moving your marker towards crime zones.</p>
+            
+            <div class="simulator-buttons">
+                <button type="button" class="btn-sim" data-lat="28.6304" data-lng="77.2177" data-name="Connaught Place (Safe)"><i class="fa-solid fa-circle-check text-safe"></i> Go to CP</button>
+                <button type="button" class="btn-sim" data-lat="28.6432" data-lng="77.2148" data-name="Paharganj (Moderate Risk)"><i class="fa-solid fa-triangle-exclamation text-warning"></i> Go to Paharganj</button>
+                <button type="button" class="btn-sim" data-lat="28.6415" data-lng="77.2244" data-name="GB Road Area (High Risk)"><i class="fa-solid fa-triangle-exclamation text-danger"></i> Go to GB Road</button>
+            </div>
+            
+            <div class="slider-control" style="margin-top: 1rem;">
+                <label class="form-label" style="font-size: 0.75rem; display: flex; justify-content: space-between;">
+                    <span>Simulation Walking Offset</span>
+                    <span id="offset-val">0.0000°</span>
+                </label>
+                <input type="range" id="sim-slider" min="-100" max="100" value="0" class="slider-element">
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Map Canvas -->
+    <div class="map-canvas-wrapper">
+        <div id="map-element"></div>
+        
+        <!-- Safety Alert Overlay Indicator -->
+        <div class="safety-alert-banner hide" id="danger-alert-toast">
+            <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+            <div>
+                <strong>Warning: High Risk Zone Detected!</strong>
+                <p id="alert-toast-text">GB Road Area is less than 200m away. Play siren if necessary.</p>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.classList.add('hide')">&times;</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Initialize Location tracking and Map overlays -->
+<script src="{{ url_for('static', filename='js/location.js') }}"></script>
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script>
+    // Capture potential hotspot redirect queries from Hotspot Index Page
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const focusLat = urlParams.get('hs_lat');
+        const focusLng = urlParams.get('hs_lng');
+        
+        if (focusLat && focusLng) {
+            window.focusHotspotOnLoad = {
+                lat: parseFloat(focusLat),
+                lng: parseFloat(focusLng)
+            };
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,7 @@
+/* Login View Stylesheet */
+@import url("register.css");
+
+/* Any login-specific overrides or customizations can go here */
+.auth-card {
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+}
